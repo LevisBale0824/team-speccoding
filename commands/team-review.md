@@ -10,18 +10,24 @@ description: Pre-merge code review for requirements, security, tests, and regres
 1. **If CRITICAL security issue found** → STOP. Require fix before merge.
 2. **If changes exceed OpenSpec scope** → STOP. Ask for clarification.
 3. **If key functionality lacks tests** → STOP. Require tests before merge.
+4. **Security checks are NOT optional:** MUST check ALL of: auth, input validation, SQL/command injection, XSS, secrets, sensitive data.
 
 ## 📋 EXECUTION CHECKLIST
 
 - [ ] 1. If `$ARGUMENTS` is empty → run `openspec list` and ASK
-- [ ] 2. Get change scope: `git diff origin/master...HEAD --stat`
-- [ ] 3. Read OpenSpec artifacts: proposal.md, tasks.md, spec deltas
-- [ ] 4. **Requirement Alignment:** does every change trace to a requirement?
-- [ ] 5. **Security:** auth, input validation, SQL injection, XSS, secrets, sensitive data
-- [ ] 6. **Test Coverage:** new features tested? bug fixes have regression tests?
-- [ ] 7. **Code Quality:** functions >50 lines? nesting >4 deep? hardcoded values? error handling?
-- [ ] 8. **Regression Risk:** shared code changed? breaking API changes? data migration needed?
-- [ ] 9. Output review report with severity-graded issues
+- [ ] 2. Locate worktree: run `git worktree list | grep <change-id>`
+  - If worktree exists → code changes are in `.worktrees/<change-id>/`, diff from worktree
+  - If no worktree → diff from main project
+- [ ] 3. Get change scope:
+  - If worktree: `cd .worktrees/<change-id> && git diff master...HEAD --stat`
+  - If no worktree: `git diff master...HEAD --stat`
+- [ ] 4. Read OpenSpec artifacts: proposal.md, design.md (if exists), tasks.md, spec deltas (from main project openspec/)
+- [ ] 5. **Requirement Alignment:** does every change trace to a requirement?
+- [ ] 6. **Security:** auth, input validation, SQL injection, XSS, secrets, sensitive data
+- [ ] 7. **Test Coverage:** new features tested? bug fixes have regression tests?
+- [ ] 8. **Code Quality:** functions >50 lines? nesting >4 deep? hardcoded values? error handling?
+- [ ] 9. **Regression Risk:** shared code changed? breaking API changes? data migration needed?
+- [ ] 10. Output review report with severity-graded issues
 
 ## 📤 OUTPUT TEMPLATE
 

@@ -10,31 +10,38 @@ description: Archive a completed change after verification passes.
 2. **DO NOT archive if `openspec validate <change-id> --strict` fails.**
 3. **DO NOT manually move directories.** Use `openspec archive` command only.
 4. **DO NOT hide incomplete tasks.** Report them transparently and ask for confirmation.
+5. **DO NOT delete worktree without merging the branch first.** If a worktree exists, its code changes MUST be merged to the current branch before cleanup.
 
 ## 📋 EXECUTION CHECKLIST
 
 - [ ] 1. If `$ARGUMENTS` is empty → run `openspec list` and ASK
 - [ ] 2. Run `openspec list` to confirm change exists and is active
 - [ ] 3. Read `tasks.md` — count incomplete tasks
-- [ ] 4. If incomplete tasks exist → WARN and ASK for confirmation
+- [ ] 4. If incomplete tasks exist → WARN:
+  ```
+  ⚠️ WARNING: X tasks remain incomplete:
+  - [ ] Task N.M: <description>
+
+  Do you still want to archive? (yes/no)
+  ```
+  Wait for explicit confirmation before proceeding.
 - [ ] 5. Run `openspec validate <change-id> --strict`
 - [ ] 6. If validation fails → STOP. Fix before archiving.
 - [ ] 7. Run `openspec archive <change-id> --yes`
 - [ ] 8. Run `openspec validate --strict` (global validation)
-- [ ] 9. Output archive report
-- [ ] 10. Check if worktree exists:
+- [ ] 9. **Worktree merge & cleanup (BEFORE final report):**
   - Run: `git worktree list | grep <change-id>`
-  - If not exists → skip to step 14
-- [ ] 11. Check for uncommitted changes in worktree:
-  - Run: `cd .worktrees/<change-id> && git status --porcelain`
+  - If no worktree → skip to step 10
+  - Check for uncommitted changes: `cd .worktrees/<change-id> && git status --porcelain`
   - If has changes → STOP. Warn: "Worktree has uncommitted changes. Please commit or stash them before running /team-archive."
-- [ ] 12. ASK user: "Worktree .worktrees/<change-id>/ still exists. Delete it?"
-  - Yes → continue to step 13
-  - No → skip to step 14
-- [ ] 13. Delete worktree:
-  - Run: `git worktree remove .worktrees/<change-id>`
-  - Verify: `git worktree list | grep <change-id>` should return nothing
-- [ ] 14. Output final report
+  - **Merge branch to current branch:**
+    - Run: `git merge <change-id> --no-ff -m "merge: <change-id> implementation complete"`
+    - If merge conflict → STOP. Warn: "Merge conflict detected. Resolve conflicts in the worktree first, then re-run /team-archive."
+    - If no worktree existed (changes were on current branch already) → skip merge
+  - ASK user: "Worktree .worktrees/<change-id>/ still exists. Delete it?"
+    - Yes → `git worktree remove .worktrees/<change-id>`, verify with `git worktree list | grep <change-id>`
+    - No → keep, note in report
+- [ ] 10. Output final report
 
 ## 📤 OUTPUT TEMPLATE
 
@@ -59,24 +66,18 @@ description: Archive a completed change after verification passes.
 - Long-term spec: `openspec/specs/<capability>/spec.md`
 - Change history: `openspec/changes/archive/<change-id>/`
 
+## Branch Merge
+- Source branch: `<change-id>`
+- Target branch: `master`
+- Merge result: ✅ Merged / ⚠ Conflicts / N/A (no worktree)
+
 ## Worktree Cleanup
-- Worktree exists: Yes / No
+- Worktree existed: Yes / No
 - Uncommitted changes: Yes / No
 - Cleanup: Deleted / Kept / N/A
 
 ## Next Command
 Optional → **`/team-retro <change-id>`** (review the collaboration)
-```
-
-## PRE-ARCHIVE TASK CHECK
-
-If incomplete tasks exist, you MUST show:
-
-```markdown
-⚠️ WARNING: X tasks remain incomplete:
-- [ ] Task N.M: <description>
-
-Do you still want to archive? (yes/no)
 ```
 
 ## IF-THIS-THEN-THAT
@@ -89,3 +90,5 @@ Do you still want to archive? (yes/no)
 | Archive fails | Show the error output. Suggest: "Check if the change is still active. Run `openspec list` to verify." |
 | "Keep the worktree" | "OK, worktree .worktrees/<change-id>/ will be kept. Remove manually later: git worktree remove .worktrees/<change-id>" |
 | "Worktree has uncommitted changes" | "Worktree has uncommitted changes. Please commit or stash them before running /team-archive." |
+| Merge conflict | "Merge conflict detected. Resolve conflicts first: `cd .worktrees/<change-id>`, fix conflicts, commit, then re-run /team-archive." |
+| "Don't merge, I'll do it manually" | "OK. The branch `<change-id>` still has your changes. You can merge manually: `git merge <change-id>`. Worktree will be kept." |

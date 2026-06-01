@@ -7,30 +7,33 @@ description: Incrementally implement an approved OpenSpec change with TDD and pa
 ## ⛔ RED LINES — READ BEFORE EVERY TASK
 
 0. **Before anything else, invoke the `team-implementation-guard` skill via the Skill tool.** Do not proceed without it.
-1. **ONE TASK AT A TIME (unless parallel).** Complete task N, verify it, mark it done, then move to task N+1.
-2. **DO NOT implement anything NOT in tasks.md.** "While I'm here" refactors are FORBIDDEN.
-3. **DO NOT mark a task complete without evidence.** Run the verification command and record the result.
-4. **DO NOT "fix" tests by weakening assertions** unless the spec changed.
-5. **DO NOT guess the root cause of a bug.** Investigate first, then fix.
-6. **If user says "skip testing"** → REFUSE. Respond: "I cannot mark work complete without verification. Let me run at least [shortest safe verification]."
-7. **If you discover a design issue** → STOP. Suggest updating OpenSpec artifacts before continuing.
+1. **WORKTREE PATH IS MANDATORY:** ALL Read/Edit/Write/Glob/Grep operations MUST use `WORKTREE_DIR` absolute paths. Relative paths resolve against the main project, NOT the worktree.
+2. **ONE TASK AT A TIME.** Only implement what's in tasks.md. No "while I'm here" refactors. If user says "skip testing" → REFUSE.
+3. **No evidence = not done.** Run verification, record the result. DO NOT weaken test assertions to make tests pass.
+4. **STOP on unknowns:** Design issue → STOP and update OpenSpec. Bug → investigate root cause first, do NOT guess-and-fix.
 
 ## 📋 EXECUTION CHECKLIST
 
 - [ ] 1. If `$ARGUMENTS` is empty → run `openspec list` and ASK
 - [ ] 1.1. Check if worktree exists for this change-id:
   - Run: `git worktree list | grep <change-id>`
-  - If exists → `cd .worktrees/<change-id>` and continue to step 2
+  - If exists → run `cd .worktrees/<change-id> && pwd` to anchor WORKTREE_DIR, then continue to step 1.4
 - [ ] 1.2. Check if currently in a worktree:
   - Run: `GIT_DIR=$(cd "$(git rev-parse --git-dir)" 2>/dev/null && pwd -P) && GIT_COMMON=$(cd "$(git rev-parse --git-common-dir)" 2>/dev/null && pwd -P) && [ "$GIT_DIR" != "$GIT_COMMON" ] && echo "in-worktree" || echo "not-in-worktree"`
   - If in-worktree (different change) → ASK: "You are in another worktree. Switch to <change-id>'s worktree?"
     - Yes → switch to .worktrees/<change-id>
     - No → STOP. Finish current work first.
 - [ ] 1.3. Create worktree:
-  - Check .worktrees/ in .gitignore: `git check-ignore -q .worktrees 2>/dev/null || echo ".worktrees/" >> .gitignore && git add .gitignore && git commit -m "chore: add .worktrees/ to .gitignore"`
+  - Ensure .worktrees/ in .gitignore: `git check-ignore -q .worktrees 2>/dev/null || echo ".worktrees/" >> .gitignore` (append only, do NOT stage or commit)
   - Create: `git worktree add .worktrees/<change-id> -b <change-id>`
   - Change directory: `cd .worktrees/<change-id>`
-- [ ] 2. Read: proposal.md, design.md (if exists), tasks.md, all spec deltas
+- [ ] 1.4. Anchor worktree absolute path (CRITICAL):
+  - Run: `cd .worktrees/<change-id> && pwd` → capture the absolute path as `WORKTREE_DIR`
+  - ALL subsequent Read/Edit/Write/Glob/Grep operations MUST use paths under `WORKTREE_DIR`
+  - Example: to read `src/app.py`, use `Read <WORKTREE_DIR>/src/app.py` (NOT `src/app.py` from main project)
+  - Announce: "Working in worktree: <WORKTREE_DIR>"
+  - **Do NOT use relative paths** for file tools — they resolve against the main project directory, not the worktree
+- [ ] 2. Read: proposal.md, design.md (if exists), tasks.md, all spec deltas (all via WORKTREE_DIR paths)
 - [ ] 3. Invoke `superpowers:test-driven-development` skill via Skill tool
 - [ ] 4. Parse tasks.md → build dependency graph
 - [ ] 5. Read execution mode from plan review (see plan output):
@@ -41,8 +44,8 @@ description: Incrementally implement an approved OpenSpec change with TDD and pa
   - **Inline:** Execute one by one with TDD flow
   - **Subagent:** Dispatch subagent per task (use `superpowers:subagent-driven-development`)
   - **Parallel:** Dispatch parallel subagents for independent tasks (use `superpowers:dispatching-parallel-agents`)
-- [ ] 7. For each task:
-  - [ ] 7a. Read the task and its requirements
+- [ ] 7. For each task (ALL paths MUST be under WORKTREE_DIR):
+  - [ ] 7a. Read the task and its requirements (from WORKTREE_DIR, NOT main project)
   - [ ] 7b. Define the verification path BEFORE editing code
   - [ ] 7c. Write tests FIRST (TDD)
   - [ ] 7d. Implement the minimal change to pass

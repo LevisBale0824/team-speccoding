@@ -15,6 +15,10 @@ These are non-negotiable. You MUST comply.
 4. **If change-id already exists** → ASK whether to continue or create a new one.
 5. **STOP after creating artifacts.** Wait for human review before implementation.
 6. **If `openspec list` fails** → STOP. The openspec directory is not accessible. Remind the user: "Run `openspec init --tools none docs` first, then create a junction: `mklink /J openspec docs\\openspec` (Windows) or symlink: `ln -s docs/openspec openspec` (Unix)."
+7. **Spec format is validation-critical.** These rules MUST be followed or `openspec validate --strict` WILL fail:
+   - Requirement text MUST contain `SHALL` or `MUST` (not "should", not "will")
+   - Headers are EXACT: `## ADDED Requirements` / `### Requirement: <name>` / `#### Scenario: <name>` (the word "Requirement:" is mandatory)
+   - Scenario body uses ONLY: `- **WHEN**` / `- **THEN**` / `- **AND**` (not "GIVEN/WHEN/THEN", not "IF/THEN")
 
 ## 📋 EXECUTION CHECKLIST
 
@@ -30,13 +34,30 @@ These are non-negotiable. You MUST comply.
 - [ ] 6. Create directory: `openspec/changes/<change-id>/`
 - [ ] 7. Generate proposal.md using EXACTLY the format below
 - [ ] 8. Generate spec deltas using EXACTLY the format below
-- [ ] 9. Generate design.md (if needed) using EXACTLY the format below
+- [ ] 9. Generate design.md — REQUIRED when ANY of these conditions apply:
+  - New components, modules, or services created
+  - Multiple implementation approaches exist (need to document trade-offs)
+  - Data schema or API contract changes
+  - Cross-subsystem changes (affects > 1 module)
+  - Migration or backward compatibility concerns
+  - Non-trivial error handling or security decisions
+  - If NONE of these apply (simple change: add field, fix bug, update config) → skip design.md and note "design.md not needed: simple change, no architectural decisions"
+  - If brainstorm.md exists from `/team-explore` → use it as input, formalize the decisions into design.md
 - [ ] 10. Invoke `superpowers:writing-plans` skill via Skill tool
   - Write output to `openspec/changes/<change-id>/plan.md`
   - Do NOT write to `docs/superpowers/plans/`
-- [ ] 11. Extract tasks.md from plan.md:
+  - **Team workflow commit override:** After writing-plans generates the plan, REMOVE all per-task "Commit" steps (e.g., `Step N: Commit` with `git add/commit`). In team workflow, commits are managed at the change level by `/team-apply`, NOT per-task. Keep TDD steps (write test → verify fail → implement → verify pass), only remove commit steps.
+  - **Add working directory header** after the plan header (Goal/Architecture/Tech Stack):
+    ```
+    > **Working Directory:** All file paths in this plan are relative to the project root. When executing with `/team-apply`, the actual working directory is `.worktrees/<change-id>/` — prepend WORKTREE_DIR to all file paths for Read/Edit/Write/Glob/Grep operations.
+    ```
+- [ ] 11. Extract tasks.md from plan.md (after commit steps removed):
   - Each `### Task N: <name>` → `## N. <name>`
   - Each `- [ ] Step N: <description>` → `- [ ] N.M <description>`
+  - **Prepend tasks.md header:**
+    ```
+    > **Working Directory:** When executing with `/team-apply`, all file paths below are relative to `.worktrees/<change-id>/` (WORKTREE_DIR), NOT the main project directory. Read/Edit/Write/Glob/Grep MUST use WORKTREE_DIR absolute paths.
+    ```
   - Write to `openspec/changes/<change-id>/tasks.md`
 - [ ] 12. Run `openspec validate <change-id> --strict`
 - [ ] 13. If validation fails → FIX first, then re-validate

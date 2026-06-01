@@ -12,24 +12,28 @@ description: Verify implementation against OpenSpec and team quality gates.
 3. **DO NOT claim "ready" if you have not run tests** (or explained why you cannot).
 4. **DO NOT infer "passing" from the absence of errors in chat.** Run the actual commands.
 5. **DO NOT hide skipped checks.** List them explicitly with reasons.
+6. **ALL 4 verification layers are mandatory:** (1) OpenSpec Validity → (2) Task Completion → (3) Project Checks → (4) Acceptance Criteria. Do not skip any layer.
 
 ## 📋 EXECUTION CHECKLIST
 
 Execute all 4 layers. Do not skip.
 
 - [ ] 1. If `$ARGUMENTS` is empty → run `openspec list` and ASK
-- [ ] 2. Read: proposal.md, tasks.md, design.md, spec deltas
-- [ ] 3. **Layer 1 — OpenSpec Validity:**
+- [ ] 2. Locate worktree: run `git worktree list | grep <change-id>`
+  - If worktree exists → all file reads MUST use `.worktrees/<change-id>/` prefix
+  - If no worktree → use main project paths
+- [ ] 3. Read: proposal.md, tasks.md, design.md (if exists), spec deltas (via worktree path if applicable)
+- [ ] 4. **Layer 1 — OpenSpec Validity:**
   - Run `openspec validate <change-id> --strict`
   - If FAIL → STOP. Fix before proceeding.
-- [ ] 4. **Layer 2 — Task Completion:**
+- [ ] 5. **Layer 2 — Task Completion:**
   - Count completed vs total tasks
   - Check each `- [x]` has evidence
   - Check deferred tasks have reasons
-- [ ] 5. **Layer 3 — Project Checks:**
+- [ ] 6. **Layer 3 — Project Checks:**
   - Run lint, unit tests, build, typecheck
   - Record the actual command output
-- [ ] 6. **Layer 4 — Acceptance Criteria:**
+- [ ] 7. **Layer 4 — Acceptance Criteria:**
   - Map every AC to a test or manual evidence
   - Mark each: ✅ / ❌ / ⚠ (missing evidence)
 - [ ] 8. Output verification report using template below

@@ -34,8 +34,7 @@ description: Deep design exploration with brainstorming. Clarify requirements, e
   - [ ] Internal consistency: sections contradict each other?
   - [ ] Scope check: focused enough for single implementation?
   - [ ] Ambiguity check: requirements interpretable two ways?
-- [ ] 11. Commit brainstorm.md
-- [ ] 12. Report and suggest next step
+- [ ] 11. Report and suggest next step (do NOT auto-commit brainstorm.md — let user decide)
 
 ## 📤 OUTPUT TEMPLATE
 

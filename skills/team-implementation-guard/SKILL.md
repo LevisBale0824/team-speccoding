@@ -9,6 +9,13 @@ description: Use when implementing OpenSpec tasks, writing code, running tests, 
 
 Implementation must follow the approved OpenSpec scope. Code changes must be small, verifiable, and tied to a task.
 
+### Implementation Survival Kit (compression-resistant)
+
+1. **WORKTREE_DIR absolute paths mandatory** — ALL Read/Edit/Write/Glob/Grep MUST use WORKTREE_DIR prefix. Relative paths resolve against main project, NOT worktree.
+2. **Task loop is autonomous** — complete task, report briefly, immediately continue to next. Do NOT ask "Continue?"
+3. **No auto-commit** — append to .gitignore without staging/committing. Commits managed at change level by /team-archive.
+4. **TDD for behavior changes** — write test first, implement minimal code, verify pass. Do NOT weaken assertions.
+
 ## When to Use
 
 Use this skill when:
@@ -158,17 +165,18 @@ To create a worktree:
    ```bash
    git check-ignore -q .worktrees 2>/dev/null
    ```
-   If not ignored → add to .gitignore and commit
+   If not ignored → append `.worktrees/` to .gitignore (do NOT stage or commit)
 
 2. **Create worktree**
    ```bash
    git worktree add .worktrees/<change-id> -b <change-id>
    ```
 
-3. **Change to worktree directory**
+3. **Anchor worktree absolute path (CRITICAL)**
    ```bash
-   cd .worktrees/<change-id>
+   cd .worktrees/<change-id> && pwd
    ```
+   Capture the output as `WORKTREE_DIR`. ALL subsequent Read/Edit/Write/Glob/Grep operations MUST use paths under `WORKTREE_DIR`. Relative paths resolve against the main project directory, NOT the worktree.
 
 ### Cleanup
 

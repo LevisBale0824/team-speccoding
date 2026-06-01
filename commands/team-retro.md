@@ -20,7 +20,10 @@ description: Retrospect on AI collaboration and feed bad cases back into skills.
 - [ ] 4. For each phase, identify: What worked? What went wrong?
 - [ ] 5. Identify failures where AI behavior deviated from skill rules
 - [ ] 6. For each failure: root cause + suggested rule adjustment
-- [ ] 7. Write bad cases to affected skill's `badCases/` directory
+- [ ] 7. Write bad cases to affected skill's `badCases/` directory using this format:
+  - Path: `skills/<skill-name>/badCases/<NNN>-<short-name>.md`
+  - Required fields: Trigger (exact user quote), Wrong Behavior, Expected Behavior, Root Cause, Rule Changes (specific rule additions)
+  - Do NOT put case details in SKILL.md — only new rules
 - [ ] 8. Update SKILL.md with new rules only (no case details)
 - [ ] 9. Generate retro report
 
@@ -83,41 +86,10 @@ description: Retrospect on AI collaboration and feed bad cases back into skills.
 This change is fully closed: archived AND retrospected. To start a new change, use `/team-explore` or `/team-propose`.
 ```
 
-## POSTMORTEM FORMAT
+## POSTMORTEM FORMAT (reference)
 
-For every failure found, write a bad case to the affected skill's `badCases/` directory:
-
-```
-skills/<skill-name>/badCases/<NNN>-<short-name>.md
-```
-
-File content structure:
-
-```markdown
-# Bad Case NNN: <one-line summary>
-- **Date:** ...
-- **Change:** <change-id>
-- **Phase:** propose / plan / apply / verify / review / archive
-
-## Trigger
-User said: "> [exact quote]"
-
-## Wrong Behavior
-...
-
-## Expected Behavior
-...
-
-## Root Cause
-...
-
-## Rule Changes
-**Affected Skill**: [skill-name]
-1. [Specific rule 1]
-2. [Specific rule 2]
-```
-
-Then update SKILL.md with the new rules only — keep case details in badCases.
+Bad case files go to `skills/<skill-name>/badCases/<NNN>-<short-name>.md` with these sections:
+Date, Change, Phase → Trigger (exact user quote) → Wrong Behavior → Expected Behavior → Root Cause → Rule Changes (affected skill + specific rules).
 
 ## IF-THIS-THEN-THAT
 
