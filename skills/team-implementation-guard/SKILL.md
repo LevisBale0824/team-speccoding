@@ -11,7 +11,7 @@ Implementation must follow the approved OpenSpec scope. Code changes must be sma
 
 ### Implementation Survival Kit (compression-resistant)
 
-1. **WORKTREE_DIR absolute paths mandatory** — ALL Read/Edit/Write/Glob/Grep MUST use WORKTREE_DIR prefix. Relative paths resolve against main project, NOT worktree.
+1. **WORKTREE_DIR for code, PROJECT_DIR for tasks.md** — Source code (Read/Edit/Write/Glob/Grep) MUST use `WORKTREE_DIR` prefix. **Exception:** `tasks.md` lives in `openspec/` which is NOT git-tracked and does NOT exist in the worktree. Update it via `<PROJECT_DIR>/openspec/changes/<change-id>/tasks.md`.
 2. **Task loop is autonomous** — complete task, report briefly, immediately continue to next. Do NOT ask "Continue?"
 3. **No auto-commit** — append to .gitignore without staging/committing. Commits managed at change level by /team-archive.
 4. **TDD for behavior changes** — write test first, implement minimal code, verify pass. Do NOT weaken assertions.
@@ -50,7 +50,7 @@ For each task:
 4. **Implement** the minimal change to pass
 5. **Run** the targeted verification
 6. **Run broader verification** if shared code was changed
-7. **Update** `tasks.md` with `[x]` and verification result
+7. **Update** `<PROJECT_DIR>/openspec/changes/<change-id>/tasks.md` with `[x]` and verification result (uses PROJECT_DIR, NOT WORKTREE_DIR — openspec files are untracked)
 8. **Immediately continue** to the next unchecked task in tasks.md — do NOT ask the user for permission
 
 ## TDD Rules

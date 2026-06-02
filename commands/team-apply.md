@@ -15,6 +15,7 @@ description: Incrementally implement an approved OpenSpec change with TDD and pa
 ## 📋 EXECUTION CHECKLIST
 
 - [ ] 1. If `$ARGUMENTS` is empty → run `openspec list` and ASK
+  - Capture main project root: `pwd` → `PROJECT_DIR` (for updating `openspec/changes/<change-id>/tasks.md` later)
 - [ ] 1.1. Check if worktree exists for this change-id:
   - Run: `git worktree list | grep <change-id>`
   - If exists → run `cd .worktrees/<change-id> && pwd` to anchor WORKTREE_DIR, then continue to step 1.4
@@ -51,7 +52,7 @@ description: Incrementally implement an approved OpenSpec change with TDD and pa
   - [ ] 7d. Implement the minimal change to pass
   - [ ] 7e. Run the targeted verification
   - [ ] 7f. If shared code was changed → run broader verification
-  - [ ] 7g. Update tasks.md: `- [x]` with verification result
+  - [ ] 7g. Update tasks.md in main project: `Edit <PROJECT_DIR>/openspec/changes/<change-id>/tasks.md` → mark `- [x]` with verification result (NOT in worktree — openspec is untracked, worktree only has git-tracked files)
 - [ ] 8. After ALL tasks complete → Spec Compliance Review:
   - [ ] 8a. Check: does implementation match requirements?
   - [ ] 8b. Check: any extra features (scope creep)?
