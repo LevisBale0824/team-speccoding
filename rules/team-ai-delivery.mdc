@@ -6,30 +6,46 @@ description: Team AI delivery rules for OpenSpec, Superpowers, custom commands a
 
 ## Workflow
 
-For non-trivial feature work, behavior changes, API changes, data model changes, security-sensitive changes, or cross-module refactoring:
+team-vibecoding uses **three-tier complexity routing** to match process weight to change risk:
 
-1. **Start with exploration** — for complex requirements, use `/team-explore` first
-2. **Create or update changes** under `openspec/changes/<id>/`
-3. **Do NOT implement** before proposal, tasks, and spec deltas are reviewed
-4. **Use team commands** (in order):
-   - `/team-explore` — explore requirements
-   - `/team-propose` — create proposal
-   - `/team-plan` — review task breakdown
-   - `/team-apply` — implement tasks
-   - `/team-verify` — verify completion
-   - `/team-review` — pre-merge code review
-   - `/team-archive` — archive change
-   - `/team-retro` — retrospect and improve skills
+### Complexity Routing Matrix
+
+| Tier | Signal | Command | Flow | Artifacts |
+|------|--------|---------|------|-----------|
+| **Low** | Bug fix, security patch, small enhancement, config change | `/team-repair` | DIVE → fix → dual-track closure → verify → archive | tasks.md + evidence |
+| **Medium** | Single-module feature, small refactor, field/endpoint addition | `/team-propose` (simplified) | propose → apply → verify → archive | proposal.md + tasks.md |
+| **High** | Cross-module, API contracts, architecture change, data migration | `/team-propose` (full) + `/team-plan` + `/team-review` | propose → plan → apply → verify → review → archive | proposal.md + spec delta + design.md + plan.md + tasks.md |
+
+### How to Route
+
+- **If the change is a bug fix, crash, error, regression, or security patch** → `/team-repair`
+- **If the change is a new feature in one module** → `/team-propose` (design.md and spec delta can be skipped)
+- **If the change touches multiple modules, APIs, data models, or architecture** → full pipeline
+- **If unsure** → `/team-propose` will analyze and suggest the right tier
+
+### Full Pipeline (for high-complexity reference)
+
+1. `/team-explore` — explore requirements (optional)
+2. `/team-propose` — create proposal + artifacts
+3. `/team-plan` — review task breakdown
+4. `/team-apply` — implement with TDD + worktree
+5. `/team-verify` — verify completion
+6. `/team-review` — pre-merge code review
+7. `/team-archive` — archive change
+8. `/team-retro` — retrospect (optional)
 
 ## Core Constraints
 
-- **Do NOT implement without an OpenSpec change.** Propose first, then implement.
+- **Route by complexity.** Bug fixes use `/team-repair`, not the full OpenSpec pipeline.
+- **Do NOT implement without a tracked change.** Either an OpenSpec proposal or a repair tasks.md must exist.
 - **Do NOT skip verification.** Every task must have evidence before being marked complete.
-- **Do NOT expand scope.** If you discover missing requirements, update OpenSpec before continuing.
+- **Do NOT expand scope.** If you discover missing requirements, update the plan before continuing.
 - **Do NOT proceed with unresolved hard blockers.** Open questions affecting API fields, permissions, security, data migration, or backward compatibility must be resolved first.
 - **Provide evidence before claiming completion.** Run the actual commands — do not infer "passing" from chat history.
 
 ## Format Requirements
+
+### OpenSpec artifacts (medium/high complexity only)
 
 All OpenSpec artifacts MUST use English headers as required by `openspec validate --strict`:
 - Proposal: `## Why`, `## What Changes`, `## Capabilities`, `## Impact`
@@ -38,15 +54,24 @@ All OpenSpec artifacts MUST use English headers as required by `openspec validat
 
 See `team-openspec-guard` skill for full format specifications.
 
+### Repair artifacts (low complexity)
+
+Repair changes use ONLY `tasks.md` under `openspec/changes/<change-id>/tasks.md` with two sections:
+- `## Repair Track` — root cause, regression test, minimal fix, compat boundary
+- `## Retirement Track` — legacy path check, retirement decision
+
+No proposal.md, spec delta, design.md, or plan.md is created. No `openspec validate` is run.
+
 ## Skippable Steps
 
 | Step | Can Skip? | Condition |
 |------|-----------|-----------|
-| `/team-explore` | Yes | Problem is already clear, change-id is decided. If used, produces brainstorm.md |
-| `/team-plan` | Yes | Simple change, single file, no dependency concerns. User explicitly requests skip. |
-| `/team-review` | Yes | Solo project, small change |
+| `/team-repair` | N/A | Standalone: 1 command + `/team-archive`. No OpenSpec pipeline. |
+| `/team-explore` | Yes | Problem is already clear, change-id is decided |
+| `/team-plan` | Yes | Simple change, single file, no dependency concerns. **Skipped for medium complexity by default.** |
+| `/team-review` | Yes | Solo project, small change. **Skipped for medium complexity by default.** |
 | `/team-retro` | Yes | Optional but recommended — prevents repeat mistakes |
-| `/team-propose` | **No** | Required for all changes |
+| `/team-propose` | **No** (medium/high) | Required for all feature/architecture changes |
 | `/team-apply` | **No** | Required for all changes |
 | `/team-verify` | **No** | Required for all changes |
 | `/team-archive` | **No** | Required for all changes |

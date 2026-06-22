@@ -19,14 +19,16 @@ These 3 rules are the minimum to pass validation. Even if Gate 2 details are com
 ## When to Use
 
 Use this skill when:
-- Creating `openspec/changes/<id>/proposal.md`
+- Creating `openspec/changes/<id>/proposal.md` (for medium/high complexity features)
 - Writing `design.md`
-- Writing `tasks.md`
 - Writing spec deltas under `openspec/changes/<id>/specs/`
 - Validating or archiving OpenSpec changes
 - Turning vague requirements into verifiable specs
 
+For bug fixes, security patches, and small enhancements, use `/team-repair` (with `team-repair-guard`) instead of the full OpenSpec pipeline.
+
 Do NOT use this skill when:
+- Fixing bugs or applying security patches (use `team-repair-guard` with `/team-repair`)
 - Implementing code (use `team-implementation-guard`)
 - Verifying results (use `team-verification-guard`)
 

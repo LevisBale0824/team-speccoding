@@ -24,6 +24,15 @@ These are non-negotiable. You MUST comply.
 
 - [ ] 1. Run `openspec --version` — if command not found → STOP. Tell user: "OpenSpec CLI is not installed. Run `npm install -g @fission-ai/openspec` first, then verify with `openspec --version`."
 - [ ] 2. If `$ARGUMENTS` is empty → ASK "What change do you want to propose?"
+- [ ] 2.5. **Complexity routing check** — analyze the user's description against the routing matrix:
+  - **Low complexity signals** (bug fix, crash, error, regression, security patch, small UI tweak, config typo, single-sentence description) →
+    → Suggest redirect: "This appears to be a low-complexity change. `/team-repair` is designed for this — it will diagnose, fix, verify, and handle dual-track closure in one command without creating proposal, spec delta, or design artifacts. Suggest switching to `/team-repair <description>`. Proceed with `/team-propose` anyway? (yes/no)"
+    - If user says no → STOP. User will invoke `/team-repair` separately.
+    - If user says yes → continue with full propose.
+  - **Medium complexity signals** (single-module feature, small refactor, adding a field/endpoint, one-file change) →
+    → Note: "Medium complexity detected. I will skip spec delta and design.md unless architecture decisions are needed. Flow: propose → apply → verify → archive (4 commands, skip plan/review)."
+  - **High complexity signals** (cross-module, API contracts, architecture change, data migration, auth/permission changes) →
+    → Note: "High complexity detected. Using full pipeline: propose → plan → apply → verify → review → archive."
 - [ ] 3. Run `openspec list` — if it fails → STOP (see RED LINE #6). This validates the junction/symlink and init were done.
 - [ ] 3.1. Read context: `openspec/project.md`, `openspec/AGENTS.md` (if exists)
 - [ ] 3.2. Check for existing brainstorm.md: `openspec/changes/<change-id>/brainstorm.md`
@@ -34,6 +43,7 @@ These are non-negotiable. You MUST comply.
 - [ ] 6. Create directory: `openspec/changes/<change-id>/`
 - [ ] 7. Generate proposal.md using EXACTLY the format below
 - [ ] 8. Generate spec deltas using EXACTLY the format below
+  - **Medium complexity:** Skip spec deltas. Note: "spec delta not needed: single-module change, no API contract or cross-module impact."
 - [ ] 9. Generate design.md — REQUIRED when ANY of these conditions apply:
   - New components, modules, or services created
   - Multiple implementation approaches exist (need to document trade-offs)
@@ -42,8 +52,10 @@ These are non-negotiable. You MUST comply.
   - Migration or backward compatibility concerns
   - Non-trivial error handling or security decisions
   - If NONE of these apply (simple change: add field, fix bug, update config) → skip design.md and note "design.md not needed: simple change, no architectural decisions"
+  - **Medium complexity:** Skip design.md automatically. Note: "design.md not needed: medium complexity, no architectural decisions."
   - If brainstorm.md exists from `/team-explore` → use it as input, formalize the decisions into design.md
 - [ ] 10. Invoke `superpowers:writing-plans` skill via Skill tool
+  - **Medium complexity:** Skip plan.md/tasks.md generation via writing-plans. Generate a simple tasks.md directly with 3-5 tasks.
   - Write output to `openspec/changes/<change-id>/plan.md`
   - Do NOT write to `docs/superpowers/plans/`
   - **Team workflow commit override:** After writing-plans generates the plan, REMOVE all per-task "Commit" steps (e.g., `Step N: Commit` with `git add/commit`). In team workflow, commits are managed at the change level by `/team-apply`, NOT per-task. Keep TDD steps (write test → verify fail → implement → verify pass), only remove commit steps.
@@ -59,7 +71,9 @@ These are non-negotiable. You MUST comply.
     > **Working Directory:** When executing with `/team-apply`, all file paths below are relative to `.worktrees/<change-id>/` (WORKTREE_DIR), NOT the main project directory. Read/Edit/Write/Glob/Grep MUST use WORKTREE_DIR absolute paths.
     ```
   - Write to `openspec/changes/<change-id>/tasks.md`
+  - **Medium complexity:** If plan.md was skipped, ensure tasks.md was created directly in step 10.
 - [ ] 12. Run `openspec validate <change-id> --strict`
+  - **Medium complexity (no spec deltas):** Skip validation — nothing to validate. Note: "Validation skipped: no spec deltas to validate."
 - [ ] 13. If validation fails → FIX first, then re-validate
 - [ ] 14. Report and STOP for human review
 
@@ -143,21 +157,23 @@ These are non-negotiable. You MUST comply.
 
 ## 📤 OUTPUT TEMPLATE
 
+### High Complexity Output
+
 ```markdown
-# Proposal Created
+# Proposal Created (High Complexity)
 
 - Change ID: `<change-id>`
 - Directory: `openspec/changes/<change-id>/`
 
 ## Artifacts
 - [x] proposal.md
-- [x] design.md (or reason why not needed)
+- [x] design.md
 - [x] plan.md (via superpowers:writing-plans)
 - [x] tasks.md (extracted from plan.md)
-- [x] specs/<capability>/spec.md
+- [x] specs/<capability>/spec.md (N deltas)
 
 ## Validation
-`openspec validate <change-id> --strict` → PASS / FAIL
+`openspec validate <change-id> --strict` → PASS
 
 ## Open Questions
 | Q# | Question | Impact | Blocking |
@@ -166,7 +182,36 @@ These are non-negotiable. You MUST comply.
 
 ## Next Command
 Human review required. After approval:
-→ **`/team-plan <change-id>`**
+→ **`/team-plan <change-id>`** (review task breakdown)
+→ Then **`/team-apply <change-id>`**
+```
+
+### Medium Complexity Output
+
+```markdown
+# Proposal Created (Medium Complexity)
+
+- Change ID: `<change-id>`
+- Directory: `openspec/changes/<change-id>/`
+
+## Artifacts
+- [x] proposal.md
+- [x] tasks.md (simplified, 3-5 tasks)
+- [ ] design.md — skipped (medium complexity, no architectural decisions)
+- [ ] spec deltas — skipped (single-module change)
+- [ ] plan.md — skipped (simplified flow)
+
+## Validation
+Skipped — no spec deltas to validate.
+
+## Open Questions
+| Q# | Question | Impact | Blocking |
+|----|----------|--------|----------|
+| Q1 | ... | ... | 🔴/🟡 |
+
+## Next Command
+Human review required. After approval:
+→ **`/team-apply <change-id>`** (plan/review are skipped for medium complexity)
 ```
 
 ## IF-THIS-THEN-THAT
@@ -178,6 +223,8 @@ Human review required. After approval:
 | Skill not loaded | Invoke `team-openspec-guard` skill via Skill tool before any action. |
 | `openspec list` fails | "OpenSpec is not accessible from the project root. Run `openspec init --tools none docs` first, then create the junction/symlink: `mklink /J openspec docs\\openspec` (Windows) or `ln -s docs/openspec openspec` (Unix)." |
 | "Add feature X too" (scope creep) | "That is out of scope. Let's finish this proposal first. You can create a separate change for X." |
+| User describes a bug fix / small change | Suggest redirect to `/team-repair`. "This appears to be a low-complexity change. `/team-repair` is designed for this — it will diagnose, fix, verify, and handle dual-track closure in one command. Suggest switching to `/team-repair <description>`." |
+| "Skip the redirect, I want full propose" | "OK, proceeding with full `/team-propose` pipeline." |
 ```
 
 **Status reporting:**

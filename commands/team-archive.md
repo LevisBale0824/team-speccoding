@@ -7,8 +7,8 @@ description: Archive a completed change after verification passes.
 ## ⛔ RED LINES
 
 1. **DO NOT archive if tasks are incomplete** without explicit user confirmation.
-2. **DO NOT archive if `openspec validate <change-id> --strict` fails.**
-3. **DO NOT manually move directories.** Use `openspec archive` command only.
+2. **DO NOT archive if `openspec validate <change-id> --strict` fails** (standard OpenSpec changes only; repair changes skip validation).
+3. **DO NOT manually move directories for standard changes.** Use `openspec archive` command. Exception: repair changes (no proposal.md) use manual directory move since they have no openspec artifacts to sync.
 4. **DO NOT hide incomplete tasks.** Report them transparently and ask for confirmation.
 5. **DO NOT delete worktree without merging the branch first.** If a worktree exists, its code changes MUST be merged to the current branch before cleanup.
 
@@ -16,6 +16,9 @@ description: Archive a completed change after verification passes.
 
 - [ ] 1. If `$ARGUMENTS` is empty → run `openspec list` and ASK
 - [ ] 2. Run `openspec list` to confirm change exists and is active
+- [ ] 2.1. **Change type detection:** Check if `openspec/changes/<change-id>/proposal.md` exists
+  - **proposal.md exists → Standard OpenSpec change.** Use `openspec archive` workflow (steps 5-8).
+  - **proposal.md does NOT exist → Repair change.** Skip openspec validation/archive (steps 5-8). Use manual directory move with `mv openspec/changes/<change-id> openspec/changes/archive/<change-id>`.
 - [ ] 3. Read `tasks.md` — count incomplete tasks
 - [ ] 4. If incomplete tasks exist → WARN:
   ```
@@ -25,10 +28,18 @@ description: Archive a completed change after verification passes.
   Do you still want to archive? (yes/no)
   ```
   Wait for explicit confirmation before proceeding.
-- [ ] 5. Run `openspec validate <change-id> --strict`
+- [ ] 5. **Standard change only:** Run `openspec validate <change-id> --strict`
+  - Repair change → skip to step 7.1
 - [ ] 6. If validation fails → STOP. Fix before archiving.
-- [ ] 7. Run `openspec archive <change-id> --yes`
-- [ ] 8. Run `openspec validate --strict` (global validation)
+- [ ] 7. **Standard change only:** Run `openspec archive <change-id> --yes`
+  - Repair change → skip to step 7.1
+- [ ] 7.1. **Repair change only:** Manually archive by moving directory:
+  - Ensure target exists: `ls openspec/changes/<change-id>/tasks.md`
+  - Create archive dir: `mkdir -p openspec/changes/archive`
+  - Move: `mv openspec/changes/<change-id> openspec/changes/archive/<change-id>`
+  - Verify: `ls openspec/changes/archive/<change-id>/tasks.md`
+- [ ] 8. **Standard change only:** Run `openspec validate --strict` (global validation)
+  - Repair change → skip
 - [ ] 9. **Worktree merge & cleanup (BEFORE final report):**
   - Run: `git worktree list | grep <change-id>`
   - If no worktree → skip to step 10
@@ -45,11 +56,15 @@ description: Archive a completed change after verification passes.
 
 ## 📤 OUTPUT TEMPLATE
 
+### Standard OpenSpec Change
+
 ```markdown
 # Archive Complete
 
 - Change: `<change-id>`
+- Type: Standard (OpenSpec)
 - Archive path: `openspec/changes/archive/<change-id>/`
+- Method: `openspec archive`
 - Specs updated: Yes / No
 - Global validation: ✅ PASS / ❌ FAIL
 
@@ -80,6 +95,39 @@ description: Archive a completed change after verification passes.
 Optional → **`/team-retro <change-id>`** (review the collaboration)
 ```
 
+### Repair Change
+
+```markdown
+# Archive Complete (Repair)
+
+- Change: `<change-id>`
+- Type: Repair (no OpenSpec artifacts)
+- Archive path: `openspec/changes/archive/<change-id>/`
+- Method: Manual directory move
+
+## Archived Artifacts
+- tasks.md → archived (Repair Track + Retirement Track)
+
+## Warnings
+- [any issues encountered]
+
+## Maintenance References
+- Change history: `openspec/changes/archive/<change-id>/tasks.md`
+
+## Branch Merge
+- Source branch: `<change-id>`
+- Target branch: `master`
+- Merge result: ✅ Merged / ⚠ Conflicts / N/A (no worktree)
+
+## Worktree Cleanup
+- Worktree existed: Yes / No
+- Uncommitted changes: Yes / No
+- Cleanup: Deleted / Kept / N/A
+
+## Next Command
+Optional → **`/team-retro <change-id>`** (review the collaboration)
+```
+
 ## IF-THIS-THEN-THAT
 
 | User says... | You MUST respond... |
@@ -92,3 +140,4 @@ Optional → **`/team-retro <change-id>`** (review the collaboration)
 | "Worktree has uncommitted changes" | "Worktree has uncommitted changes. Please commit or stash them before running /team-archive." |
 | Merge conflict | "Merge conflict detected. Resolve conflicts first: `cd .worktrees/<change-id>`, fix conflicts, commit, then re-run /team-archive." |
 | "Don't merge, I'll do it manually" | "OK. The branch `<change-id>` still has your changes. You can merge manually: `git merge <change-id>`. Worktree will be kept." |
+| Repair change — no proposal.md | "This is a repair change. Using manual directory move instead of `openspec archive`. No spec sync needed." |
