@@ -537,9 +537,8 @@ $ openspec list
 <span class="accent">✖ Error: No OpenSpec changes directory found. Run 'openspec init' first.</span>
 
 <span class="cmt">// AI 参照 IF-THIS-THEN-THAT 规则自行修复：</span>
-$ openspec init --tools none docs    <span class="cmt"># 初始化目录结构</span>
-$ mklink /J openspec docs\openspec   <span class="cmt"># 创建 Windows junction</span>
-$ openspec list                      <span class="cmt"># 验证成功</span>
+$ openspec init --tools none .   <span class="cmt"># 初始化目录结构到项目根目录</span>
+$ openspec list                 <span class="cmt"># 验证成功</span>
 <span class="fn">No active changes found.</span>            <span class="cmt"># ← ✅</span>
         </div>
         <div class="ai-bubble reveal reveal-d3" style="margin-top:clamp(0.4rem,1.2vh,0.8rem)">

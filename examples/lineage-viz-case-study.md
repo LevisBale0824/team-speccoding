@@ -211,21 +211,16 @@
 
 ● OpenSpec 尚未初始化。需要先设置项目。让我帮你完成初始化：
 
-● Bash(cd "D:/code/lineage-viz" && openspec init --tools none docs 2>&1)
-  ⎿  Directory "docs" doesn't exist, it will be created.
-     - Creating OpenSpec structure...
-     ▌ OpenSpec structure created
-     … +10 lines (ctrl+o to expand)
+ ● Bash(cd "D:/code/lineage-viz" && openspec init --tools none . 2>&1)
+   ⎿  Creating OpenSpec structure...
+      ▌ OpenSpec structure created
 
-● Bash(cd "D:/code/lineage-viz" && cmd //c "mklink /J openspec docs\\openspec" 2>&1)
-  ⎿  Ϊ openspec <<===>> docs\openspec ����������
+ ● Bash(cd "D:/code/lineage-viz" && openspec list 2>&1)
+   ⎿  No active changes found.
 
-● Bash(cd "D:/code/lineage-viz" && openspec list 2>&1)
-  ⎿  No active changes found.
+ ● OpenSpec 已就绪。接下来读取项目上下文。
 
-● OpenSpec 已就绪。接下来读取项目上下文。
-
-  步骤 3-4：读取上下文和已有 specs
+   步骤 3-4：读取上下文和已有 specs
 
 ● Bash(cd "D:/code/lineage-viz" && openspec list --specs 2>&1)
   ⎿  No specs found.

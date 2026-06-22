@@ -51,16 +51,9 @@ If the command fails:
 
 1. **STOP** — the openspec directory is not accessible
 2. **Tell the user:**
-   > OpenSpec directory is not accessible from the project root. You need to create a junction/symlink:
-   >
-   > **Windows:**
+   > OpenSpec directory is not accessible from the project root. Initialize it first:
    > ```bash
-   > mklink /J openspec docs\openspec
-   > ```
-   >
-   > **Unix/macOS:**
-   > ```bash
-   > ln -s docs/openspec openspec
+   > openspec init --tools none .
    > ```
    >
    > Then verify with `openspec list`.

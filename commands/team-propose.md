@@ -14,7 +14,7 @@ These are non-negotiable. You MUST comply.
 3. **DO NOT proceed if hard-blocking open questions exist** (API fields, permissions, data migration, payments, security, UX branching, backward compatibility).
 4. **If change-id already exists** → ASK whether to continue or create a new one.
 5. **STOP after creating artifacts.** Wait for human review before implementation.
-6. **If `openspec list` fails** → STOP. The openspec directory is not accessible. Remind the user: "Run `openspec init --tools none docs` first, then create a junction: `mklink /J openspec docs\\openspec` (Windows) or symlink: `ln -s docs/openspec openspec` (Unix)."
+6. **If `openspec list` fails** → STOP. The openspec directory is not accessible. Remind the user: "Run `openspec init --tools none .` first to initialize OpenSpec in the project root."
 7. **Spec format is validation-critical.** These rules MUST be followed or `openspec validate --strict` WILL fail:
    - Requirement text MUST contain `SHALL` or `MUST` (not "should", not "will")
    - Headers are EXACT: `## ADDED Requirements` / `### Requirement: <name>` / `#### Scenario: <name>` (the word "Requirement:" is mandatory)
@@ -221,7 +221,7 @@ Human review required. After approval:
 | "Just skip validation" | "I cannot. Validation ensures the artifacts are well-formed. Let me fix any issues and re-run." |
 | "Don't need design.md" | "OK, I'll note that design.md is not needed for this change." |
 | Skill not loaded | Invoke `team-openspec-guard` skill via Skill tool before any action. |
-| `openspec list` fails | "OpenSpec is not accessible from the project root. Run `openspec init --tools none docs` first, then create the junction/symlink: `mklink /J openspec docs\\openspec` (Windows) or `ln -s docs/openspec openspec` (Unix)." |
+| `openspec list` fails | "OpenSpec is not accessible from the project root. Run `openspec init --tools none .` first to initialize OpenSpec." |
 | "Add feature X too" (scope creep) | "That is out of scope. Let's finish this proposal first. You can create a separate change for X." |
 | User describes a bug fix / small change | Suggest redirect to `/team-repair`. "This appears to be a low-complexity change. `/team-repair` is designed for this — it will diagnose, fix, verify, and handle dual-track closure in one command. Suggest switching to `/team-repair <description>`." |
 | "Skip the redirect, I want full propose" | "OK, proceeding with full `/team-propose` pipeline." |
