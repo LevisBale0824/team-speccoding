@@ -12,9 +12,21 @@ description: Pre-merge code review for requirements, security, tests, and regres
 3. **If key functionality lacks tests** → STOP. Require tests before merge.
 4. **Security checks are NOT optional:** MUST check ALL of: auth, input validation, SQL/command injection, XSS, secrets, sensitive data.
 
+## 🔍 PARAMETER EXTRACTION (do this FIRST)
+
+The `change-id` does NOT arrive via `$ARGUMENTS` — OpenCode performs pure string substitution that breaks conditional logic. Find the change-id by checking, in priority order:
+
+1. **`**User Arguments**` field** at the top of this message (most reliable)
+2. **`## User Request` section** near the bottom of this message
+3. **The user's raw command text** (the token immediately after the command name)
+
+Rules:
+- If a change-id is found → capture it as `<change-id>` and **DO NOT run `openspec list`**. Proceed to the EXECUTION CHECKLIST.
+- If NO change-id is found → run `openspec list`, present the active changes, and ASK the user to pick one.
+
 ## 📋 EXECUTION CHECKLIST
 
-- [ ] 1. If `$ARGUMENTS` is empty → run `openspec list` and ASK
+- [ ] 1. Use the `<change-id>` from PARAMETER EXTRACTION above
 - [ ] 2. Get change scope: `git diff master...HEAD --stat` (diff the change branch against master)
 - [ ] 3. Read OpenSpec artifacts: proposal.md, design.md (if exists), tasks.md, spec deltas
 - [ ] 4. **Requirement Alignment:** does every change trace to a requirement?

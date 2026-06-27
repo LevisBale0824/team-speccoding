@@ -12,9 +12,21 @@ description: Diagnose, fix, and verify bugs/patches/small enhancements with dual
 3. **Dual-track closure is mandatory.** Every repair MUST produce Repair Track + Retirement Track in tasks.md.
 4. **STOP if scope exceeds repair.** If the fix requires new architecture, cross-module changes, or API contract changes → escalate to `/team-propose`.
 
+## 🔍 PARAMETER EXTRACTION (do this FIRST)
+
+The `description` does NOT arrive via `$ARGUMENTS` — OpenCode performs pure string substitution that breaks conditional logic. Find the description by checking, in priority order:
+
+1. **`**User Arguments**` field** at the top of this message (most reliable)
+2. **`## User Request` section** near the bottom of this message
+3. **The user's raw command text** (the text after the command name)
+
+Rules:
+- If a description is found → capture it and proceed directly to the EXECUTION CHECKLIST. Do NOT re-ask the user.
+- If NO description is found → ASK the user "What do you want to fix? Describe the bug or issue.".
+
 ## 📋 EXECUTION CHECKLIST
 
-- [ ] 1. If `$ARGUMENTS` is empty → ASK "What do you want to fix? Describe the bug or issue."
+- [ ] 1. Use the `<description>` from PARAMETER EXTRACTION above
   - Capture project root: `pwd` → `PROJECT_DIR`. ALL file operations (code AND openspec) use paths under `PROJECT_DIR`.
   - Generate change-id from description: `fix-<short-slug>` (e.g., `fix-login-timeout`)
 - [ ] 2. Create or switch to the change branch (isolation without worktree):

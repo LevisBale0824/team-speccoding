@@ -11,9 +11,21 @@ description: Deep design exploration with brainstorming. Clarify requirements, e
 - **DO NOT skip openspec environment check.**
 - **DO NOT proceed if brainstorm.md would have unresolved hard blockers.**
 
+## 🔍 PARAMETER EXTRACTION (do this FIRST)
+
+The `topic` does NOT arrive via `$ARGUMENTS` — OpenCode performs pure string substitution that breaks conditional logic. Find the topic by checking, in priority order:
+
+1. **`**User Arguments**` field** at the top of this message (most reliable)
+2. **`## User Request` section** near the bottom of this message
+3. **The user's raw command text** (the text after the command name)
+
+Rules:
+- If a topic is found → capture it as `<topic>` and proceed directly to the EXECUTION CHECKLIST. Do NOT re-ask the user.
+- If NO topic is found → ASK the user "What do you want to explore?".
+
 ## 📋 EXECUTION CHECKLIST
 
-- [ ] 1. If `$ARGUMENTS` is empty → ASK "What do you want to explore?"
+- [ ] 1. Use the `<topic>` from PARAMETER EXTRACTION above
 - [ ] 2. Invoke the `team-brainstorm-guard` skill via the Skill tool. Do not proceed without it.
 - [ ] 3. Read context: `openspec/project.md`, `openspec/AGENTS.md` (if exists)
 - [ ] 4. Run `openspec list --specs` to understand existing capabilities

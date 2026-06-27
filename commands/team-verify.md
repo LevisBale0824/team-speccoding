@@ -14,11 +14,23 @@ description: Verify implementation against OpenSpec and team quality gates.
 5. **DO NOT hide skipped checks.** List them explicitly with reasons.
 6. **ALL 4 verification layers are mandatory:** (1) OpenSpec Validity → (2) Task Completion → (3) Project Checks → (4) Acceptance Criteria. Do not skip any layer.
 
+## 🔍 PARAMETER EXTRACTION (do this FIRST)
+
+The `change-id` does NOT arrive via `$ARGUMENTS` — OpenCode performs pure string substitution that breaks conditional logic. Find the change-id by checking, in priority order:
+
+1. **`**User Arguments**` field** at the top of this message (most reliable)
+2. **`## User Request` section** near the bottom of this message
+3. **The user's raw command text** (the token immediately after the command name)
+
+Rules:
+- If a change-id is found → capture it as `<change-id>` and **DO NOT run `openspec list`**. Proceed to the EXECUTION CHECKLIST.
+- If NO change-id is found → run `openspec list`, present the active changes, and ASK the user to pick one.
+
 ## 📋 EXECUTION CHECKLIST
 
 Execute all 4 layers. Do not skip.
 
-- [ ] 1. If `$ARGUMENTS` is empty → run `openspec list` and ASK
+- [ ] 1. Use the `<change-id>` from PARAMETER EXTRACTION above
 - [ ] 2. Read: proposal.md, tasks.md, design.md (if exists), spec deltas (all via PROJECT_DIR paths)
 - [ ] 3. **Layer 1 — OpenSpec Validity:**
   - Run `openspec validate <change-id> --strict`

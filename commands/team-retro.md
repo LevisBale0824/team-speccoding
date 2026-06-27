@@ -12,9 +12,21 @@ description: Retrospect on AI collaboration and feed bad cases back into skills.
 3. **Every failure MUST have a suggested rule adjustment.** No "just note it" without a fix.
 4. **Bad Cases go to `badCases/` directory** in the affected skill's folder — NOT inline in SKILL.md.
 
+## 🔍 PARAMETER EXTRACTION (do this FIRST)
+
+The `change-id` does NOT arrive via `$ARGUMENTS` — OpenCode performs pure string substitution that breaks conditional logic. Find the change-id by checking, in priority order:
+
+1. **`**User Arguments**` field** at the top of this message (most reliable)
+2. **`## User Request` section** near the bottom of this message
+3. **The user's raw command text** (the token immediately after the command name)
+
+Rules:
+- If a change-id is found → capture it as `<change-id>` and **DO NOT run `openspec list --all`**. Proceed to the EXECUTION CHECKLIST.
+- If NO change-id is found → run `openspec list --all`, present the changes (including archived), and ASK the user to pick one.
+
 ## 📋 EXECUTION CHECKLIST
 
-- [ ] 1. If `$ARGUMENTS` is empty → run `openspec list --all` and ASK
+- [ ] 1. Use the `<change-id>` from PARAMETER EXTRACTION above
 - [ ] 2. Review archived artifacts: proposal.md, tasks.md, verification records
 - [ ] 3. Analyze each phase: propose → plan → apply → verify → review → archive
 - [ ] 4. For each phase, identify: What worked? What went wrong?

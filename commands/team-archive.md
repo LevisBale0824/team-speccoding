@@ -12,9 +12,21 @@ description: Archive a completed change after verification passes.
 4. **DO NOT hide incomplete tasks.** Report them transparently and ask for confirmation.
 5. **DO NOT delete the change branch without merging it first.** If a branch exists, its commits MUST be merged to the base branch before deletion.
 
+## 🔍 PARAMETER EXTRACTION (do this FIRST)
+
+The `change-id` does NOT arrive via `$ARGUMENTS` — OpenCode performs pure string substitution that breaks conditional logic. Find the change-id by checking, in priority order:
+
+1. **`**User Arguments**` field** at the top of this message (most reliable)
+2. **`## User Request` section** near the bottom of this message
+3. **The user's raw command text** (the token immediately after the command name)
+
+Rules:
+- If a change-id is found → capture it as `<change-id>` and **DO NOT run `openspec list`** (step 2 will confirm it exists). Proceed to the EXECUTION CHECKLIST.
+- If NO change-id is found → run `openspec list`, present the active changes, and ASK the user to pick one.
+
 ## 📋 EXECUTION CHECKLIST
 
-- [ ] 1. If `$ARGUMENTS` is empty → run `openspec list` and ASK
+- [ ] 1. Use the `<change-id>` from PARAMETER EXTRACTION above
 - [ ] 2. Run `openspec list` to confirm change exists and is active
 - [ ] 2.1. **Change type detection:** Check if `openspec/changes/<change-id>/proposal.md` exists
   - **proposal.md exists → Standard OpenSpec change.** Use `openspec archive` workflow (steps 5-8).

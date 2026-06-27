@@ -20,10 +20,22 @@ These are non-negotiable. You MUST comply.
    - Headers are EXACT: `## ADDED Requirements` / `### Requirement: <name>` / `#### Scenario: <name>` (the word "Requirement:" is mandatory)
    - Scenario body uses ONLY: `- **WHEN**` / `- **THEN**` / `- **AND**` (not "GIVEN/WHEN/THEN", not "IF/THEN")
 
+## 🔍 PARAMETER EXTRACTION (do this FIRST)
+
+The `description` does NOT arrive via `$ARGUMENTS` — OpenCode performs pure string substitution that breaks conditional logic. Find the description by checking, in priority order:
+
+1. **`**User Arguments**` field** at the top of this message (most reliable)
+2. **`## User Request` section** near the bottom of this message
+3. **The user's raw command text** (the text after the command name)
+
+Rules:
+- If a description is found → capture it and proceed directly to the EXECUTION CHECKLIST. Do NOT re-ask the user.
+- If NO description is found → ASK the user "What change do you want to propose?".
+
 ## 📋 EXECUTION CHECKLIST
 
 - [ ] 1. Run `openspec --version` — if command not found → STOP. Tell user: "OpenSpec CLI is not installed. Run `npm install -g @fission-ai/openspec` first, then verify with `openspec --version`."
-- [ ] 2. If `$ARGUMENTS` is empty → ASK "What change do you want to propose?"
+- [ ] 2. Use the `<description>` from PARAMETER EXTRACTION above
 - [ ] 2.5. **Complexity routing check** — analyze the user's description against the routing matrix:
   - **Low complexity signals** (bug fix, crash, error, regression, security patch, small UI tweak, config typo, single-sentence description) →
     → Suggest redirect: "This appears to be a low-complexity change. `/team-repair` is designed for this — it will diagnose, fix, verify, and handle dual-track closure in one command without creating proposal, spec delta, or design artifacts. Suggest switching to `/team-repair <description>`. Proceed with `/team-propose` anyway? (yes/no)"
