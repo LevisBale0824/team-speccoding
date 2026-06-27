@@ -11,7 +11,7 @@ Repair is diagnosis-first. Fix only after root cause is confirmed with evidence.
 
 ### Repair Survival Kit (compression-resistant)
 
-1. **WORKTREE_DIR for code, PROJECT_DIR for tasks.md** — Source code operations MUST use `WORKTREE_DIR` prefix. `tasks.md` lives in `openspec/` which is NOT git-tracked. Update it via `<PROJECT_DIR>/openspec/changes/<change-id>/tasks.md`.
+1. **All file operations use PROJECT_DIR** — Source code AND openspec artifacts all live under `PROJECT_DIR`. No worktree, no path splitting. Update tasks.md at `<PROJECT_DIR>/openspec/changes/<change-id>/tasks.md`.
 2. **Diagnose before fixing** — DIVE protocol is mandatory. No guessing, no trial-and-error fixes.
 3. **Dual-track closure is NOT optional** — every repair must produce Repair Track + Retirement Track.
 4. **No auto-commit** — commits managed by /team-archive.
@@ -121,10 +121,6 @@ Test-first is REQUIRED for all repair changes. Regression test must exist before
 1. Write a failing regression test (Red)
 2. Write minimal code to pass (Green)
 3. Run full suite to verify no regressions
-
-## Worktree Management
-
-Same as team-implementation-guard: create `.worktrees/<change-id>/`, anchor WORKTREE_DIR, all code operations use absolute paths under WORKTREE_DIR. Cleanup delegated to `/team-archive`.
 
 ## Evidence Format
 

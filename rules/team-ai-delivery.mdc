@@ -28,7 +28,7 @@ team-vibecoding uses **three-tier complexity routing** to match process weight t
 1. `/team-explore` — explore requirements (optional)
 2. `/team-propose` — create proposal + artifacts
 3. `/team-plan` — review task breakdown
-4. `/team-apply` — implement with TDD + worktree
+4. `/team-apply` — implement with TDD
 5. `/team-verify` — verify completion
 6. `/team-review` — pre-merge code review
 7. `/team-archive` — archive change

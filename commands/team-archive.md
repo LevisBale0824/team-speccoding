@@ -10,7 +10,7 @@ description: Archive a completed change after verification passes.
 2. **DO NOT archive if `openspec validate <change-id> --strict` fails** (standard OpenSpec changes only; repair changes skip validation).
 3. **DO NOT manually move directories for standard changes.** Use `openspec archive` command. Exception: repair changes (no proposal.md) use manual directory move since they have no openspec artifacts to sync.
 4. **DO NOT hide incomplete tasks.** Report them transparently and ask for confirmation.
-5. **DO NOT delete worktree without merging the branch first.** If a worktree exists, its code changes MUST be merged to the current branch before cleanup.
+5. **DO NOT delete the change branch without merging it first.** If a branch exists, its commits MUST be merged to the base branch before deletion.
 
 ## 📋 EXECUTION CHECKLIST
 
@@ -40,17 +40,17 @@ description: Archive a completed change after verification passes.
   - Verify: `ls openspec/changes/archive/<change-id>/tasks.md`
 - [ ] 8. **Standard change only:** Run `openspec validate --strict` (global validation)
   - Repair change → skip
-- [ ] 9. **Worktree merge & cleanup (BEFORE final report):**
-  - Run: `git worktree list | grep <change-id>`
-  - If no worktree → skip to step 10
-  - Check for uncommitted changes: `cd .worktrees/<change-id> && git status --porcelain`
-  - If has changes → STOP. Warn: "Worktree has uncommitted changes. Please commit or stash them before running /team-archive."
-  - **Merge branch to current branch:**
-    - Run: `git merge <change-id> --no-ff -m "merge: <change-id> implementation complete"`
-    - If merge conflict → STOP. Warn: "Merge conflict detected. Resolve conflicts in the worktree first, then re-run /team-archive."
-    - If no worktree existed (changes were on current branch already) → skip merge
-  - ASK user: "Worktree .worktrees/<change-id>/ still exists. Delete it?"
-    - Yes → `git worktree remove .worktrees/<change-id>`, verify with `git worktree list | grep <change-id>`
+- [ ] 9. **Branch merge & cleanup (BEFORE final report):**
+  - Run: `git branch --list <change-id>`
+  - If no branch → skip to step 10
+  - Check for uncommitted changes on the change branch: `git status --porcelain`
+    - If has changes → STOP. Warn: "Branch <change-id> has uncommitted changes. Please commit or stash them before running /team-archive."
+  - **Merge branch to base branch:**
+    - Run: `git switch master && git merge <change-id> --no-ff -m "merge: <change-id> implementation complete"`
+    - If merge conflict → STOP. Warn: "Merge conflict detected. Resolve conflicts first, then re-run /team-archive."
+    - If no branch existed (changes were on current branch already) → skip merge
+  - ASK user: "Branch <change-id> is merged. Delete it?"
+    - Yes → `git branch -d <change-id>`
     - No → keep, note in report
 - [ ] 10. Output final report
 
@@ -84,12 +84,8 @@ description: Archive a completed change after verification passes.
 ## Branch Merge
 - Source branch: `<change-id>`
 - Target branch: `master`
-- Merge result: ✅ Merged / ⚠ Conflicts / N/A (no worktree)
-
-## Worktree Cleanup
-- Worktree existed: Yes / No
-- Uncommitted changes: Yes / No
-- Cleanup: Deleted / Kept / N/A
+- Merge result: ✅ Merged / ⚠ Conflicts / N/A (no branch)
+- Branch deleted: Yes / No / N/A
 
 ## Next Command
 Optional → **`/team-retro <change-id>`** (review the collaboration)
@@ -117,12 +113,8 @@ Optional → **`/team-retro <change-id>`** (review the collaboration)
 ## Branch Merge
 - Source branch: `<change-id>`
 - Target branch: `master`
-- Merge result: ✅ Merged / ⚠ Conflicts / N/A (no worktree)
-
-## Worktree Cleanup
-- Worktree existed: Yes / No
-- Uncommitted changes: Yes / No
-- Cleanup: Deleted / Kept / N/A
+- Merge result: ✅ Merged / ⚠ Conflicts / N/A (no branch)
+- Branch deleted: Yes / No / N/A
 
 ## Next Command
 Optional → **`/team-retro <change-id>`** (review the collaboration)
@@ -136,8 +128,8 @@ Optional → **`/team-retro <change-id>`** (review the collaboration)
 | "Move the files manually" | "I must use `openspec archive` to ensure specs are properly synced. Let me run the command." |
 | "Ignore the validation error" | "I cannot archive with validation errors. Let me check what's wrong first." |
 | Archive fails | Show the error output. Suggest: "Check if the change is still active. Run `openspec list` to verify." |
-| "Keep the worktree" | "OK, worktree .worktrees/<change-id>/ will be kept. Remove manually later: git worktree remove .worktrees/<change-id>" |
-| "Worktree has uncommitted changes" | "Worktree has uncommitted changes. Please commit or stash them before running /team-archive." |
-| Merge conflict | "Merge conflict detected. Resolve conflicts first: `cd .worktrees/<change-id>`, fix conflicts, commit, then re-run /team-archive." |
-| "Don't merge, I'll do it manually" | "OK. The branch `<change-id>` still has your changes. You can merge manually: `git merge <change-id>`. Worktree will be kept." |
+| "Keep the branch" | "OK, branch <change-id> will be kept. Remove manually later: git branch -d <change-id>" |
+| "Branch has uncommitted changes" | "Branch <change-id> has uncommitted changes. Please commit or stash them before running /team-archive." |
+| Merge conflict | "Merge conflict detected. Resolve conflicts first, then re-run /team-archive." |
+| "Don't merge, I'll do it manually" | "OK. The branch <change-id> still has your changes. You can merge manually: git merge <change-id>." |
 | Repair change — no proposal.md | "This is a repair change. Using manual directory move instead of `openspec archive`. No spec sync needed." |

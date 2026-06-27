@@ -19,24 +19,21 @@ description: Verify implementation against OpenSpec and team quality gates.
 Execute all 4 layers. Do not skip.
 
 - [ ] 1. If `$ARGUMENTS` is empty → run `openspec list` and ASK
-- [ ] 2. Locate worktree: run `git worktree list | grep <change-id>`
-  - If worktree exists → all file reads MUST use `.worktrees/<change-id>/` prefix
-  - If no worktree → use main project paths
-- [ ] 3. Read: proposal.md, tasks.md, design.md (if exists), spec deltas (via worktree path if applicable)
-- [ ] 4. **Layer 1 — OpenSpec Validity:**
+- [ ] 2. Read: proposal.md, tasks.md, design.md (if exists), spec deltas (all via PROJECT_DIR paths)
+- [ ] 3. **Layer 1 — OpenSpec Validity:**
   - Run `openspec validate <change-id> --strict`
   - If FAIL → STOP. Fix before proceeding.
-- [ ] 5. **Layer 2 — Task Completion:**
+- [ ] 4. **Layer 2 — Task Completion:**
   - Count completed vs total tasks
   - Check each `- [x]` has evidence
   - Check deferred tasks have reasons
-- [ ] 6. **Layer 3 — Project Checks:**
+- [ ] 5. **Layer 3 — Project Checks:**
   - Run lint, unit tests, build, typecheck
   - Record the actual command output
-- [ ] 7. **Layer 4 — Acceptance Criteria:**
+- [ ] 6. **Layer 4 — Acceptance Criteria:**
   - Map every AC to a test or manual evidence
   - Mark each: ✅ / ❌ / ⚠ (missing evidence)
-- [ ] 8. Output verification report using template below
+- [ ] 7. Output verification report using template below
 
 ## 📤 OUTPUT TEMPLATE
 

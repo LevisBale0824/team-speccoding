@@ -61,14 +61,14 @@ These are non-negotiable. You MUST comply.
   - **Team workflow commit override:** After writing-plans generates the plan, REMOVE all per-task "Commit" steps (e.g., `Step N: Commit` with `git add/commit`). In team workflow, commits are managed at the change level by `/team-apply`, NOT per-task. Keep TDD steps (write test → verify fail → implement → verify pass), only remove commit steps.
   - **Add working directory header** after the plan header (Goal/Architecture/Tech Stack):
     ```
-    > **Working Directory:** All file paths in this plan are relative to the project root. When executing with `/team-apply`, the actual working directory is `.worktrees/<change-id>/` — prepend WORKTREE_DIR to all file paths for Read/Edit/Write/Glob/Grep operations.
+    > **Working Directory:** All file paths in this plan are relative to the project root (PROJECT_DIR).
     ```
 - [ ] 11. Extract tasks.md from plan.md (after commit steps removed):
   - Each `### Task N: <name>` → `## N. <name>`
   - Each `- [ ] Step N: <description>` → `- [ ] N.M <description>`
   - **Prepend tasks.md header:**
     ```
-    > **Working Directory:** When executing with `/team-apply`, all file paths below are relative to `.worktrees/<change-id>/` (WORKTREE_DIR), NOT the main project directory. Read/Edit/Write/Glob/Grep MUST use WORKTREE_DIR absolute paths.
+    > **Working Directory:** All file paths below are relative to the project root (PROJECT_DIR).
     ```
   - Write to `openspec/changes/<change-id>/tasks.md`
   - **Medium complexity:** If plan.md was skipped, ensure tasks.md was created directly in step 10.

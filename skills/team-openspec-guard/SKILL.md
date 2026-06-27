@@ -186,7 +186,7 @@ Extract each `- [ ]` step from plan.md and renumber:
 
 **Output (tasks.md):**
 ```markdown
-> **Working Directory:** When executing with `/team-apply`, all file paths below are relative to `.worktrees/<change-id>/` (WORKTREE_DIR), NOT the main project directory. Read/Edit/Write/Glob/Grep MUST use WORKTREE_DIR absolute paths.
+> **Working Directory:** All file paths below are relative to the project root (PROJECT_DIR).
 
 ## 1. Create user model
 - [ ] 1.1 Write failing test

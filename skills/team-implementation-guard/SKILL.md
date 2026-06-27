@@ -11,7 +11,7 @@ Implementation must follow the approved OpenSpec scope. Code changes must be sma
 
 ### Implementation Survival Kit (compression-resistant)
 
-1. **WORKTREE_DIR for code, PROJECT_DIR for tasks.md** — Source code (Read/Edit/Write/Glob/Grep) MUST use `WORKTREE_DIR` prefix. **Exception:** `tasks.md` lives in `openspec/` which is NOT git-tracked and does NOT exist in the worktree. Update it via `<PROJECT_DIR>/openspec/changes/<change-id>/tasks.md`.
+1. **All file operations use PROJECT_DIR** — Source code AND openspec artifacts (tasks.md etc.) all live under `PROJECT_DIR`. No worktree, no path splitting. Update tasks.md at `<PROJECT_DIR>/openspec/changes/<change-id>/tasks.md`.
 2. **Task loop is autonomous** — complete task, report briefly, immediately continue to next. Do NOT ask "Continue?"
 3. **No auto-commit** — append to .gitignore without staging/committing. Commits managed at change level by /team-archive.
 4. **TDD for behavior changes** — write test first, implement minimal code, verify pass. Do NOT weaken assertions.
@@ -50,7 +50,7 @@ For each task:
 4. **Implement** the minimal change to pass
 5. **Run** the targeted verification
 6. **Run broader verification** if shared code was changed
-7. **Update** `<PROJECT_DIR>/openspec/changes/<change-id>/tasks.md` with `[x]` and verification result (uses PROJECT_DIR, NOT WORKTREE_DIR — openspec files are untracked)
+7. **Update** `<PROJECT_DIR>/openspec/changes/<change-id>/tasks.md` with `[x]` and verification result
 8. **Immediately continue** to the next unchecked task in tasks.md — do NOT ask the user for permission
 
 ## TDD Rules
@@ -133,54 +133,11 @@ Parse `tasks.md` to build dependency graph:
 - Scope changes
 - Architecture decisions
 
-## Worktree Management
+## Branch Management
 
-Use Git worktrees for isolation when working on changes. Worktrees prevent cross-change interference.
+Use a dedicated branch (`<change-id>`) for isolation when working on changes — NO worktree. Create/switch in step 1.1 of `/team-apply`. Branches prevent cross-change interference while keeping all files in one working directory (PROJECT_DIR).
 
-### Detection
-
-Before creating a worktree, check:
-
-1. **Is worktree already exists?**
-   ```bash
-   git worktree list | grep <change-id>
-   ```
-   If exists → switch to it
-
-2. **Are we already in a worktree?**
-   ```bash
-   GIT_DIR=$(cd "$(git rev-parse --git-dir)" 2>/dev/null && pwd -P)
-   GIT_COMMON=$(cd "$(git rev-parse --git-common-dir)" 2>/dev/null && pwd -P)
-   if [ "$GIT_DIR" != "$GIT_COMMON" ]; then
-     echo "In worktree"
-   fi
-   ```
-   If in different worktree → prompt user to switch
-
-### Creation
-
-To create a worktree:
-
-1. **Check .worktrees/ is in .gitignore**
-   ```bash
-   git check-ignore -q .worktrees 2>/dev/null
-   ```
-   If not ignored → append `.worktrees/` to .gitignore (do NOT stage or commit)
-
-2. **Create worktree**
-   ```bash
-   git worktree add .worktrees/<change-id> -b <change-id>
-   ```
-
-3. **Anchor worktree absolute path (CRITICAL)**
-   ```bash
-   cd .worktrees/<change-id> && pwd
-   ```
-   Capture the output as `WORKTREE_DIR`. ALL subsequent Read/Edit/Write/Glob/Grep operations MUST use paths under `WORKTREE_DIR`. Relative paths resolve against the main project directory, NOT the worktree.
-
-### Cleanup
-
-Worktrees are cleaned up in `/team-archive`. Do NOT manually delete worktrees.
+Branches are merged and deleted in `/team-archive`. Do NOT manually delete branches before merging.
 
 ## Spec Compliance Review (After ALL tasks)
 
